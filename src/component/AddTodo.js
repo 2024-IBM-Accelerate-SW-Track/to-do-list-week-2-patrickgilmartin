@@ -3,6 +3,8 @@ import { Button, TextField } from "@mui/material";
 import { DesktopDatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { format } from 'date-fns';
+import Axios from "axios";
+
 
 class AddTodo extends Component {
   constructor() {
@@ -28,16 +30,36 @@ class AddTodo extends Component {
   handleSubmit = (event) => {
     event.preventDefault();
     if (this.state.content.trim() && this.state.due) {
-      this.props.addTodo({
-        content: this.state.content,
-        due: this.state.due,
-      });
-      this.setState({
-        content: "",
-        due: null,
-      });
+        const jsonObject = {
+            id: Date.now(),
+            task: this.state.content,
+            currentDate: new Date().toLocaleString(),
+            dueDate: this.state.due
+        };
+
+        Axios({
+            method: "POST",
+            url: "http://localhost:3001/add/item",
+            data: { jsonObject },
+            headers: {
+                "Content-Type": "application/json"
+            }
+        }).then(res => {
+            console.log(res.data.message);
+        });
+
+        this.props.addTodo({
+            content: this.state.content,
+            due: this.state.due,
+        });
+
+        this.setState({
+            content: "",
+            due: null,
+        });
     }
-  };
+};
+
 
   render() {
     return (
